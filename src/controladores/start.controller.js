@@ -4,9 +4,7 @@ import { getComments, addComment } from './commentsController.js';
 export const ping = async (req, res) => {
     try{
         const [result] = await pool.query('SELECT "Pong" AS result');
-        res.send("Why");
-        //res.json(result[0].result);
-        console.log(result);
+        res.json(result[0].result);
     }
     catch (err){
         console.log(err);
