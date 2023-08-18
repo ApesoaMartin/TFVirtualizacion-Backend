@@ -4,8 +4,8 @@ import { indexPage, ping, submitComment } from '../controladores/start.controlle
 
 const router = Router();
 
-router.get('/', indexPage)
+//router.get('/', indexPage)
 router.get('/ping', ping);
-router.post('/addComment', submitComment);
+//router.post('/addComment', submitComment);
 
 export default router;
