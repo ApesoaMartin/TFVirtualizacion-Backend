@@ -1,0 +1,25 @@
+body {
+    background-image: url("../resources/background.png");
+    color:white;
+}
+
+.comment{
+    max-width: 100%;
+    padding: 20px;
+}
+
+.comment-date{
+    display: inline;
+    color:gray;
+    font-style: italic;
+}
+
+.comment-name{
+    display: inline;
+    font-weight: bolder;
+    font-size: large;
+}
+
+textarea{
+    resize: none;
+}
