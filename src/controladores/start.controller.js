@@ -12,6 +12,14 @@ export const ping = async (req, res) => {
     }
 };
 
+export const about = async (req,res) => {
+    res.json({
+        img: null,
+        nombre: "Martin Apesoa",
+        descripcion: "Lorem ipsum"
+    });
+};
+
 export const indexPage = async (req, res)=>{
     const [comments] = await getComments();
     res.render("index", {comments});
