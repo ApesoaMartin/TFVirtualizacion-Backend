@@ -1,37 +1,82 @@
-import {pool} from '../db.js';
-import { getComments, addComment } from './commentsController.js';
+import { pool } from '../db.js';
+import { CAT_About } from '../config.js';
 
 export const ping = async (req, res) => {
-    try{
+    try {
         const [result] = await pool.query('SELECT "Pong" AS result');
         res.json(result[0].result);
     }
-    catch (err){
+    catch (err) {
         console.log(err);
         res.send(err);
     }
 };
 
-export const about = async (req,res) => {
-    res.json({
-        img: null,
-        nombre: "Martin Apesoa",
-        descripcion: "Lorem ipsum"
-    });
-};
-
-export const indexPage = async (req, res)=>{
-    const [comments] = await getComments();
-    res.render("index", {comments});
-};
-
-export const submitComment = async(req, res)=>{
-    const {nombre, texto} = req.body;
-    if (nombre && texto){
-        console.log("Comentando: ", nombre, texto);
-        addComment(nombre, texto);
-    }else {
-        res.status(500);
+function procesarContenido(contenido){
+    if (contenido.cuerpo.startsWith("{")){
+        let sep = contenido.cuerpo.indexOf(" ");
+        let cmd = contenido.cuerpo.substring(1, sep);
+        let arg = contenido.cuerpo.substring(sep+1, contenido.cuerpo.length-1);
+        
+        switch (cmd){
+            case "img":
+                contenido.cuerpo='<img class="'+contenido.clase+'" src="/resources/'+arg+'"/>';
+                break;
+            default:
+                contenido.cuerpo='';
+                console.log("Unknown command "+cmd);
+                break;
+        }
     }
-    res.redirect("/");
 }
+
+export const getArticulos = async (req, res) => {
+    try {
+        const [cats] = await pool.query('SELECT * FROM Categoria WHERE nombre="' + req.params.cat+'"');
+        //console.log(cats[0]);
+        const id = cats[0].id;
+        const [rows] = await pool.query('SELECT * FROM Articulo WHERE categoria=' + id +' ORDER BY fecha DESC');
+        //console.log(rows.length);
+        let result = {articulos:[]};
+        for (let i=0; i<rows.length; i++){
+            let articulo = rows[i];
+            result.articulos[i] = {
+                titulo: articulo.titulo,
+                contenido: []
+            };
+            const [contentRows] = await pool.query('SELECT * FROM Contenido WHERE idArticulo=' + articulo.id+' ORDER BY orden ASC');
+            for (let j=0; j<contentRows.length; j++){
+                procesarContenido(contentRows[j]);
+            }
+            //console.log(contentRows);
+            result.articulos[i].contenido = contentRows;
+        }
+        //console.log(result);
+        res.json(result);
+    }
+    catch (err) {
+        console.log(err);
+        res.send(err);
+    }
+};
+
+export const about = async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM Articulo WHERE categoria=' + CAT_About);
+        const articulo = rows[0];
+        const [contentRows] = await pool.query('SELECT * FROM Contenido WHERE idArticulo=' + articulo.id);
+        const desc = contentRows[0];
+        console.log(articulo);
+        console.log(desc);
+        res.json({
+            titulo: articulo.titulo,
+            cuerpo: desc.cuerpo,
+            link: desc.link,
+            linkDisplay: desc.linkDisplay ?? desc.link
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.send(err);
+    }
+};
