@@ -22,6 +22,14 @@ function procesarContenido(contenido){
             case "img":
                 contenido.cuerpo='<img class="'+contenido.clase+'" src="/resources/'+arg+'"/>';
                 break;
+            case "list":
+                const valores = arg.split(",");
+                contenido.cuerpo='<ul class="list-group">';
+                for (let i=0; i<valores.length; i++){
+                    contenido.cuerpo+='<li class="list-group-item">'+valores[i]+'</li>';
+                }
+                contenido.cuerpo+='</ul>';
+                break;
             default:
                 contenido.cuerpo='';
                 console.log("Unknown command "+cmd);
@@ -42,7 +50,9 @@ export const getArticulos = async (req, res) => {
             let articulo = rows[i];
             result.articulos[i] = {
                 titulo: articulo.titulo,
-                contenido: []
+                contenido: [],
+                link: articulo.link,
+                linkDisplay: articulo.linkDisplay ?? articulo.link
             };
             const [contentRows] = await pool.query('SELECT * FROM Contenido WHERE idArticulo=' + articulo.id+' ORDER BY orden ASC');
             for (let j=0; j<contentRows.length; j++){

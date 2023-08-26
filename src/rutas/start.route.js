@@ -7,7 +7,6 @@ const router = Router();
 //router.get('/', indexPage)
 router.get('/ping', ping);
 router.get('/info/:cat', getArticulos);
-router.get('/about', about);
 //router.post('/addComment', submitComment);
 
 export default router;
