@@ -6,5 +6,6 @@ export const pool = createPool({
     port: DB_PORT,
     user: DB_USER,
     password: DB_PASS,
-    database: DB_NAME
+    database: DB_NAME,
+    charset: "utf8_general_ci"
 });
